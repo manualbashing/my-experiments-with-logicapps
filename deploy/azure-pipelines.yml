@@ -108,6 +108,6 @@ stages:
           inputs:
             azureSubscription: '$(azureSubscription)'
             appType: 'functionApp'
-            appName: "$[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['RGDO_LogicAppName'] ]"
+            appName: $[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['RGDO_LogicAppName'] ]
             package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
             deploymentMethod: 'zipDeploy'
