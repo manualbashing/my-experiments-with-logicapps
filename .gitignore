@@ -11,3 +11,4 @@ workflow-designtime
 # Local testing
 .azurite
 .debug
+connections.json
