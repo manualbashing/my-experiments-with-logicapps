@@ -102,12 +102,14 @@ stages:
     jobs:
       - job: logic_app_deployment
         displayName: Deploy Logic App
+        variables:
+          logicAppName: $[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['logicAppName'] ]
         steps:
         - task: AzureFunctionApp@1
           displayName: 'Deploy logic app workflows'
           inputs:
             azureSubscription: '$(azureSubscription)'
             appType: 'functionApp'
-            appName: $[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['logicAppName'] ]
+            appName: '$(logicAppName)'
             package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
             deploymentMethod: 'zipDeploy'
