@@ -57,13 +57,11 @@ stages:
               archiveType: "zip"
               archiveFile: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
               replaceExistingArchive: true
-
           - task: PublishPipelineArtifact@1
-            displayName: "Publish project zip artifact"
             inputs:
-              targetPath: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
-              artifact: "$(logicAppCIArtifactName)"
-              publishLocation: "pipeline"
+              targetPath: $(Build.ArtifactStagingDirectory)
+              artifactName: "$(logicAppCIArtifactName)"
+
   
   - stage: stage_resource_deployment
     displayName: "Deploy logic app resources"
@@ -106,11 +104,16 @@ stages:
         variables:
           logicAppName: $[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['deploy.logicAppName'] ]
         steps:
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: '$(logicAppCIArtifactName)'
+            targetPath: '$(System.ArtifactsDirectory)'
+
         - task: AzureFunctionApp@1
           displayName: 'Deploy logic app workflows'
           inputs:
             azureSubscription: '$(azureSubscription)'
             appType: 'functionApp'
             appName: '$(logicAppName)'
-            package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
+            package: '$(System.ArtifactsDirectory)/*.zip'
             deploymentMethod: 'zipDeploy'
