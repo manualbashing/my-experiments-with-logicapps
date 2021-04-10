@@ -72,6 +72,7 @@ stages:
         displayName: "Deploy logic app resources from bicep"
         steps:
           - task: AzureCLI@2
+            name: deploy
             displayName: "Deploy from bicep using azure cli"
             inputs:
               azureSubscription: '$(azureSubscription)'
@@ -103,7 +104,7 @@ stages:
       - job: logic_app_deployment
         displayName: Deploy Logic App
         variables:
-          logicAppName: $[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['logicAppName'] ]
+          logicAppName: $[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['deploy.logicAppName'] ]
         steps:
         - task: AzureFunctionApp@1
           displayName: 'Deploy logic app workflows'
