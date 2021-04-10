@@ -83,4 +83,5 @@ resource res_logic_app 'Microsoft.Web/sites@2018-11-01' = {
   }
 }
 
-output logicAppSystemAssignedIdentityObjectId string = reference(res_logic_app.id, '2019-08-01', 'full').identity.principalId
+output LogicAppSystemAssignedIdentityObjectId string = reference(res_logic_app.id, '2019-08-01', 'full').identity.principalId
+output LogicAppName string = logic_app_name

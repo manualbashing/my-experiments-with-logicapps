@@ -7,21 +7,29 @@ trigger:
   - none
 
 parameters:
+  
+  - name: "ServiceConnection"
+    type: string
+    default: "myService"
+ 
+  - name: "Environment"
+    type: string
+    default: "dev"
+
+  - name: "ResourceGroupBaseName"
+    type: string
+    default: "rg-myexperiments-logicapps"
+
   - name: "Location"
     type: string
     default: "westeurope"
 
-  - name: "ResourceGroupName"
-    type: string
-    default: "rg-myexperiments-logicapps-dev"
-
 variables:
 
-    # TODO: Fill in with the name of your Azure service connection
-    devServiceConnection: ''
-  
-    # Project artifacts
-    logicAppCIArtifactName: 'logicapp_publish_artifact'
+    resourceGroupName: '${{ parameters.ResourceGroupBaseName }}-${{ parameters.Environment }}'
+    location: '${{ parameters.Location }}'
+    devServiceConnection: '${{ parameters.ServiceConnection }}'
+    logicAppCIArtifactName: 'logicapp_publish_artifact_${{ parameters.Environment }}'
 
 stages:
   - stage: stage_logic_app_build
@@ -56,3 +64,55 @@ stages:
               targetPath: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
               artifact: "$(logicAppCIArtifactName)"
               publishLocation: "pipeline"
+  
+  - stage: stage_resource_deployment
+    displayName: "Deploy logic app resources"
+    jobs:
+      - job: resource_deployment
+        displayName: "Deploy logic app resources from bicep"
+        steps:
+          - task: AzureCLI@2
+            displayName: "Deploy from bicep using azure cli"
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+              
+                az group create --name '$(resourceGroupName)' --location '$(location)'
+                az deployment group create --resource-group '$(resourceGroupName)' --name logic_app_deploy \
+                  --template-file deploy/logicapp-template.bicep \
+                  --parameters environment='${{ parameters.Environment }}'
+                
+                deploymentoutputs=$(az deployment group show --resource-group '$(resourceGroupName)' --name logic_app_deploy \
+                  --query properties.outputs)
+                
+                echo 'convert outputs to variables'
+                echo $deploymentoutputs | jq -c '. | to_entries[] | [.key, .value.value]' |
+                  while IFS=$"\n" read -r c; do
+                    outputname=$(echo "$c" | jq -r '.[0]')
+                    outputvalue=$(echo "$c" | jq -r '.[1]')
+                    echo "setting variable RGDO_$outputname=$outputvalue"
+                    echo "##vso[task.setvariable variable=RGDO_$outputname;isOutput=true]$outputvalue"
+                  done
+
+  - stage: stage_logic_app_deployment
+    dependsOn: stage_resource_deployment
+    displayName: "Deploy logic app"
+    jobs:
+    - deployment: deploy_logicapp
+      displayName: Deploy Logic App
+      variables:
+        deploymentMode: 'Incremental'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureFunctionApp@1
+              displayName: 'Deploy logic app workflows'
+              inputs:
+                azureSubscription: '$(devServiceConnection)'
+                appType: 'functionApp'
+                appName: "$[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['RGDO_LogicAppName'] ]"
+                package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
+                deploymentMethod: 'zipDeploy'
