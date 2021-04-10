@@ -1,6 +1,6 @@
 param environment string = 'dev'
 
-var unique_string = take(uniqueString(resourceGroup().name), 10)
+var unique_string = take(uniqueString(resourceGroup().name), 9)
 var storage_account_name = 'sa${unique_string}${environment}'
 var app_service_plan_name = 'asp-${unique_string}-${environment}'
 var logic_app_name = 'logic-${unique_string}-${environment}'
