@@ -4,3 +4,9 @@ bin
 obj
 appsettings.json
 local.settings.json
+
+# Logic Apps v2
+workflow-designtime
+
+# Azurite
+.azurite
