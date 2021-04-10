@@ -8,5 +8,6 @@ local.settings.json
 # Logic Apps v2
 workflow-designtime
 
-# Azurite
+# Local testing
 .azurite
+.debug
