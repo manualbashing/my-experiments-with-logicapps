@@ -12,3 +12,6 @@ workflow-designtime
 .azurite
 .debug
 connections.json
+
+# bicep
+deploy/logicapp-template.json
