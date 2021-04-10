@@ -10,35 +10,7 @@
                 },
                 "runAfter": {}
             },
-            "Create_HTML_table": {
-                "type": "Table",
-                "inputs": {
-                    "from": "@body('Select')",
-                    "format": "HTML"
-                },
-                "runAfter": {
-                    "Select": [
-                        "Succeeded"
-                    ]
-                }
-            },
-            "Response": {
-                "type": "Response",
-                "kind": "http",
-                "inputs": {
-                    "statusCode": 200,
-                    "headers": {
-                        "Content-Type": "text/html"
-                    },
-                    "body": "@body('Create_HTML_table')"
-                },
-                "runAfter": {
-                    "Create_HTML_table": [
-                        "Succeeded"
-                    ]
-                }
-            },
-            "Parse_JSON": {
+            "Parse_JSON_cat_facts": {
                 "type": "ParseJson",
                 "inputs": {
                     "content": "@body('HTTP_GET_cat_facts')",
@@ -111,17 +83,96 @@
                     ]
                 }
             },
-            "Select": {
-                "type": "Select",
+            "HTTP_GET_cat_image": {
+                "type": "Http",
                 "inputs": {
-                    "from": "@body('Parse_JSON')",
-                    "select": {
-                        "Fact": "@item()?['text']",
-                        "Source": "@item()?['source']"
+                    "method": "GET",
+                    "uri": "https://api.thecatapi.com/v1/images/search"
+                },
+                "runAfter": {}
+            },
+            "Create_HTML_table": {
+                "type": "Table",
+                "inputs": {
+                    "from": "@body('Select_cat_facts')",
+                    "format": "HTML"
+                },
+                "runAfter": {
+                    "Select_cat_facts": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Parse_JSON_cat_image": {
+                "type": "ParseJson",
+                "inputs": {
+                    "content": "@body('HTTP_GET_cat_image')",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "breeds": {
+                                    "type": "array"
+                                },
+                                "id": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "integer"
+                                },
+                                "height": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": [
+                                "breeds",
+                                "id",
+                                "url",
+                                "width",
+                                "height"
+                            ]
+                        }
                     }
                 },
                 "runAfter": {
-                    "Parse_JSON": [
+                    "HTTP_GET_cat_image": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Select_cat_facts": {
+                "type": "Select",
+                "inputs": {
+                    "from": "@body('Parse_JSON_cat_facts')",
+                    "select": {
+                        "Fact": "@item()?['text']"
+                    }
+                },
+                "runAfter": {
+                    "Parse_JSON_cat_image": [
+                        "Succeeded"
+                    ],
+                    "Parse_JSON_cat_facts": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Response_cat": {
+                "type": "Response",
+                "kind": "http",
+                "inputs": {
+                    "statusCode": 200,
+                    "headers": {
+                        "Content-Type": "text/html;charset=utf-8"
+                    },
+                    "body": "<html>\n<head>\n<style>\nbody {\nbackground-image: url('@{body('Parse_JSON_cat_image')[0]?['url']}');\ncolor: red;\nfont-family: Papyrus;\ntext-align: center\n}\nh1   {\ncolor: blue;\nfont-size: 4em;\nbackground-color: powderblue;\n}\ntable {\nborder-collapse:separate; \nborder-spacing:2em;\nmargin: 10% 20%;\n}\ntable tr td {\nfont-size: 2em;\nbackground-color: powderblue;\npadding: 0.5em;\n}\nthead, th {display: none;}\np {background-color: powderblue;}\n\n</style>\n</head>\n<body>\n<h1>😸 The Cat App 😸</h1>\n@{body('Create_HTML_table')}\n<p>\n🐱‍👤Kitties from <a href=\"https://thecatapi.com/\">TheCatAPI/</a>, 🐱Facts from <a href=\"https://alexwohlbruck.github.io/cat-facts/docs/\">cat-facts</a>\n</p>\n</body>\n</html>"
+                },
+                "runAfter": {
+                    "Create_HTML_table": [
                         "Succeeded"
                     ]
                 }
