@@ -4,16 +4,55 @@
 # https://aka.ms/yaml
 
 trigger:
-- none
+  - none
 
-pool:
-  vmImage: ubuntu-latest
+parameters:
+  - name: "Location"
+    type: string
+    default: "westeurope"
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  - name: "ResourceGroupName"
+    type: string
+    default: "rg-myexperiments-logicapps-dev"
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+variables:
+
+    # TODO: Fill in with the name of your Azure service connection
+    devServiceConnection: ''
+  
+    # Project artifacts
+    logicAppCIArtifactName: 'logicapp_publish_artifact'
+
+stages:
+  - stage: stage_logic_app_build
+    displayName: "Build and publish logic app"
+    jobs:
+      - job: logic_app_build
+        displayName: "Build and publish logic app"
+        steps:
+          - task: CopyFiles@2
+            displayName: "Create project folder"
+            inputs:
+              SourceFolder: "$(System.DefaultWorkingDirectory)"
+              Contents: |
+                host.json
+                proxies.json
+                TheCatApp/**
+                StatelessHello/**
+              TargetFolder: "project_output"
+
+          - task: ArchiveFiles@2
+            displayName: "Create project zip"
+            inputs:
+              rootFolderOrFile: "$(System.DefaultWorkingDirectory)/project_output"
+              includeRootFolder: false
+              archiveType: "zip"
+              archiveFile: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
+              replaceExistingArchive: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish project zip artifact"
+            inputs:
+              targetPath: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
+              artifact: "$(logicAppCIArtifactName)"
+              publishLocation: "pipeline"
