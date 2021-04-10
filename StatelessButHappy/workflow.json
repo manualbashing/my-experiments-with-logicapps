@@ -1,0 +1,141 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "HTTP_GET_cat_facts": {
+                "type": "Http",
+                "inputs": {
+                    "method": "GET",
+                    "uri": "https://cat-fact.herokuapp.com/facts"
+                },
+                "runAfter": {}
+            },
+            "Create_HTML_table": {
+                "type": "Table",
+                "inputs": {
+                    "from": "@body('Select')",
+                    "format": "HTML"
+                },
+                "runAfter": {
+                    "Select": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Response": {
+                "type": "Response",
+                "kind": "http",
+                "inputs": {
+                    "statusCode": 200,
+                    "headers": {
+                        "Content-Type": "text/html"
+                    },
+                    "body": "@body('Create_HTML_table')"
+                },
+                "runAfter": {
+                    "Create_HTML_table": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Parse_JSON": {
+                "type": "ParseJson",
+                "inputs": {
+                    "content": "@body('HTTP_GET_cat_facts')",
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "object",
+                                    "properties": {
+                                        "verified": {
+                                            "type": "boolean"
+                                        },
+                                        "sentCount": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "deleted": {
+                                    "type": "boolean"
+                                },
+                                "_id": {
+                                    "type": "string"
+                                },
+                                "user": {
+                                    "type": "string"
+                                },
+                                "text": {
+                                    "type": "string"
+                                },
+                                "__v": {
+                                    "type": "integer"
+                                },
+                                "source": {
+                                    "type": "string"
+                                },
+                                "updatedAt": {
+                                    "type": "string"
+                                },
+                                "createdAt": {
+                                    "type": "string"
+                                },
+                                "used": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "required": [
+                                "status",
+                                "type",
+                                "deleted",
+                                "_id",
+                                "user",
+                                "text",
+                                "__v",
+                                "source",
+                                "updatedAt",
+                                "createdAt",
+                                "used"
+                            ]
+                        }
+                    }
+                },
+                "runAfter": {
+                    "HTTP_GET_cat_facts": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Select": {
+                "type": "Select",
+                "inputs": {
+                    "from": "@body('Parse_JSON')",
+                    "select": {
+                        "Fact": "@item()?['text']",
+                        "Source": "@item()?['source']"
+                    }
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "triggers": {
+            "manual": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {}
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {}
+    },
+    "kind": "Stateless"
+}
