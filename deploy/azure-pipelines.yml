@@ -10,7 +10,7 @@ parameters:
   
   - name: "ServiceConnection"
     type: string
-    default: "myService"
+    default: "azure_visual_studio_subscription"
  
   - name: "Environment"
     type: string
@@ -100,19 +100,14 @@ stages:
     dependsOn: stage_resource_deployment
     displayName: "Deploy logic app"
     jobs:
-    - deployment: deploy_logicapp
-      displayName: Deploy Logic App
-      variables:
-        deploymentMode: 'Incremental'
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - task: AzureFunctionApp@1
-              displayName: 'Deploy logic app workflows'
-              inputs:
-                azureSubscription: '$(devServiceConnection)'
-                appType: 'functionApp'
-                appName: "$[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['RGDO_LogicAppName'] ]"
-                package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
-                deploymentMethod: 'zipDeploy'
+      - job: logic_app_deployment
+        displayName: Deploy Logic App
+        steps:
+        - task: AzureFunctionApp@1
+          displayName: 'Deploy logic app workflows'
+          inputs:
+            azureSubscription: '$(devServiceConnection)'
+            appType: 'functionApp'
+            appName: "$[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['RGDO_LogicAppName'] ]"
+            package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
+            deploymentMethod: 'zipDeploy'
