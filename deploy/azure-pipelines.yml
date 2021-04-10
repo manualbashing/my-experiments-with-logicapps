@@ -7,30 +7,30 @@ trigger:
   - none
 
 parameters:
-  
-  - name: "ServiceConnection"
-    type: string
-    default: "azure_visual_studio_subscription"
- 
-  - name: "Environment"
-    type: string
-    default: "dev"
 
   - name: "ResourceGroupBaseName"
     type: string
     default: "rg-myexperiments-logicapps"
 
+  - name: "Environment"
+    type: string
+    default: "dev"
+
   - name: "Location"
     type: string
     default: "westeurope"
 
+  - name: "ServiceConnection"
+    type: string
+    default: "azure_visual_studio_subscription"
+
 variables:
 
     resourceGroupName: '${{ parameters.ResourceGroupBaseName }}-${{ parameters.Environment }}'
-    location: '${{ parameters.Location }}'
+    location: '${{ parameters.Location }}' 
     devServiceConnection: '${{ parameters.ServiceConnection }}'
     logicAppCIArtifactName: 'logicapp_publish_artifact_${{ parameters.Environment }}'
-
+    azureSubscription: '${{ params.ServiceConnection }}'
 stages:
   - stage: stage_logic_app_build
     displayName: "Build and publish logic app"
@@ -106,7 +106,7 @@ stages:
         - task: AzureFunctionApp@1
           displayName: 'Deploy logic app workflows'
           inputs:
-            azureSubscription: '$(devServiceConnection)'
+            azureSubscription: '$(azureSubscription)'
             appType: 'functionApp'
             appName: "$[ stageDependencies.stage_resource_deployment.resource_deployment.outputs['RGDO_LogicAppName'] ]"
             package: "$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip"
