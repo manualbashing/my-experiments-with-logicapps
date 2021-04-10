@@ -30,7 +30,7 @@ variables:
     location: '${{ parameters.Location }}' 
     devServiceConnection: '${{ parameters.ServiceConnection }}'
     logicAppCIArtifactName: 'logicapp_publish_artifact_${{ parameters.Environment }}'
-    azureSubscription: '${{ params.ServiceConnection }}'
+    azureSubscription: '${{ parameters.ServiceConnection }}'
 stages:
   - stage: stage_logic_app_build
     displayName: "Build and publish logic app"
