@@ -1,12 +1,10 @@
-> These are the notes to my session at Azure Global Bootcamp 2021.
-# DevOps with Logic Apps - From Awful to Awesome
-
-<center>
-<img src="https://upload.wikimedia.org/wikipedia/en/2/2e/Pat-Morita_(Karate_Kid).jpg" alt="Miyagi" style="zoom:35%;" />
+![Miyagi](https://upload.wikimedia.org/wikipedia/en/2/2e/Pat-Morita_(Karate_Kid).jpg)
 
 *Coding always last answer to problem*. (**Mr Miyagi about Logic Apps**)
-</center>
 
+# DevOps with Logic Apps - From Awful to Awesome
+
+These are the notes to my session at Azure Global Bootcamp 2021: [https://globalazure.net/sessions/253953](https://globalazure.net/sessions/253953)
 
 ## LogicApps v1
 
