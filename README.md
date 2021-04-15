@@ -1,6 +1,6 @@
 ![Miyagi](https://upload.wikimedia.org/wikipedia/en/2/2e/Pat-Morita_(Karate_Kid).jpg)
 
-*Coding always last answer to problem*. (**Mr Miyagi about Logic Apps**)
+*\- Coding always last answer to problem*. (**Mr Miyagi on Logic Apps**)
 
 # DevOps with Logic Apps - From Awful to Awesome
 
