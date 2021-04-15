@@ -56,7 +56,7 @@ OK all of this is manageble and not outright awful.. But also not awesome.
 - Logic Apps v2 Single tenant approach: One logic app hosts one or more workflows (shared resources)
 - Sits on top of the Azure Functions runtime
 
-## Development Flow
+### Development Flow
 
 - Visual Studio Code
 - Local testing and debugging!
@@ -66,7 +66,7 @@ OK all of this is manageble and not outright awful.. But also not awesome.
   - No need anymore to redeploy all logic apps that share one particular configuration if that configuration is changed. 
   - Change the logic app setting at runtime
 
-### Storage connection for development
+#### Storage connection for development
 
 Defined in `local.settings.json` (`UseDevelopmentStorage=true`)
 
@@ -85,7 +85,7 @@ Defined in `local.settings.json` (`UseDevelopmentStorage=true`)
 - Fine if the Storage Emulator wont work
 - Add the connection string to the `local.settings.json`
 
-### Using the designer in vscode over WSL remote connection
+#### Using the designer in vscode over WSL remote connection
 
 - Currently an issue: [When using WSL remote connection, Overview tab is blank · Issue #269 · Azure/logicapps (github.com)](https://github.com/Azure/logicapps/issues/269)
 
@@ -100,14 +100,14 @@ http POST "$server/runtime/webhooks/workflow/api/management/workflows/$workflowN
 
 - But no way to see the run history
 
-## Build and deploy LogicApps with Azure Pipelines
+### Build and deploy LogicApps with Azure Pipelines
 
 - DevOps: Like function apps: 
 	- Use arm or bicep or terraform to create the resources 
 	- build and deploy the workflows that you develop in your IDE
 - Proper separation of concerns
 
-## Deploy LogicApps v2 to a docker container
+### Deploy LogicApps v2 to a docker container
 
 Examples:
 
@@ -115,7 +115,7 @@ Examples:
 - [logicapps/azure-devops-sample at master · Azure/logicapps (github.com)](https://github.com/Azure/logicapps/tree/master/azure-devops-sample)
 - [Tip 311 - How to run Logic Apps in a Docker container | Azure Tips and Tricks (microsoft.github.io)](https://microsoft.github.io/AzureTipsAndTricks/blog/tip311.html)
 
-### Build the image and run the container
+#### Build the image and run the container
 
 ```bash
 docker build --tag local/logic-app-container .
@@ -133,7 +133,7 @@ docker run -d `
   local/logic-app-container
 ```
 
-### Get the trigger URL
+#### Get the trigger URL
 
 Open the storage account and get the value  of `masterKey` from the content of `/azure-webjobs-secrets/{some id}/host.json`
 
