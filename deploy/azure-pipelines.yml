@@ -10,7 +10,7 @@ parameters:
 
   - name: "ResourceGroupBaseName"
     type: string
-    default: "rg-myexperiments-logicapps"
+    default: "rg-logicapps-v2"
 
   - name: "Environment"
     type: string
